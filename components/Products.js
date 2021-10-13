@@ -5,7 +5,6 @@ import { TouchableOpacity } from 'react-native-gesture-handler'
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 export default function Products({ products }) {
-    const rating = 5;
     return (
         <View>
             <Text style={{ fontSize: 16, fontWeight: "800", color: '#222222', marginVertical: 5 }}>FEATURED PRODUCTS</Text>

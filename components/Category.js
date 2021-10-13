@@ -9,7 +9,7 @@ export default function Category({ categories }) {
             {categories.map((category) => (
                 <TouchableOpacity key={category.categoryID} style={styles.category}>
                     <Image
-                        style={{ width: Dimensions.get('screen').width / 3.65, height: Dimensions.get('screen').width / 3.65, borderRadius: 15 }}
+                        style={{ width: Dimensions.get('window').width / 3.7, height: Dimensions.get('window').width / 3.65, borderRadius: 15 }}
                         source={{ uri: category.category_image }} />
                     <Text style={{ textAlign: 'center', color: '#222222', fontWeight: '800', paddingTop: 3 }}>{category.category}</Text>
                 </TouchableOpacity>
