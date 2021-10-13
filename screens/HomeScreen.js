@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useState } from 'react'
-import { StyleSheet, Text, TextInput, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, Text, TextInput, View } from 'react-native'
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -10,19 +10,16 @@ import Products from '../components/Products';
 
 export default function HomeScreen({ navigation }) {
     const [homeData, setHomeData] = useState({})
-    const [products, setProducts] = useState({})
+    const [products, setProducts] = useState([])
+    const [page, setPage] = useState(1)
+    const [loading, setLoading] = useState(false)
 
-    useEffect(() => {
+
+    useLayoutEffect(() => {
         // Others
         fetch('https://api.anayase.com/home/api.php?home')
             .then(async (res) => setHomeData(await res.json()))
 
-        // Products
-        fetch('https://api.anayase.com/products/api.php?featured_products&page=2')
-            .then(async (res) => setProducts(await res.json()))
-    }, [])
-
-    useLayoutEffect(() => {
         navigation.setOptions({
             header: () => (
                 <View style={styles.appBar}>
@@ -38,17 +35,43 @@ export default function HomeScreen({ navigation }) {
         })
     }, [navigation])
 
+
+    useEffect(() => {
+        setLoading(true)
+        fetch(`https://api.anayase.com/products/api.php?featured_products&page=${page}`)
+            .then(async (res) => {
+                const response = await res.json()
+                setProducts([...products, ...response.lists])
+                setLoading(false)
+            })
+    }, [page])
+
+
     const images = homeData?.sliders?.map((slider) => slider?.image) || []
     const primary_categories = homeData?.primary_categories || []
     const collections = homeData?.tags || []
-    const productsList = products.lists || []
+    const productsList = products || []
+
+    const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
+        const paddingToBottom = 20;
+        return layoutMeasurement.height + contentOffset.y >=
+            contentSize.height - paddingToBottom;
+    };
+
 
     return (
-        <ScrollView style={styles.container} >
+        <ScrollView style={styles.container} onScroll={({ nativeEvent }) => {
+            if (isCloseToBottom(nativeEvent) && !loading) {
+                setLoading(true)
+                setPage(page + 1)
+                console.log('end')
+            }
+        }}>
             <Slider images={images} />
             <Category categories={primary_categories} />
             <Collection collections={collections} />
             <Products products={productsList} />
+            {loading ? <ActivityIndicator animating color="#D55934" size="large" /> : null}
         </ScrollView>
     )
 }
